@@ -116,7 +116,7 @@ fun MembersScreen(
     }
 
     suspend fun searchMember(value: String) {
-        search = value
+        search = value.trimStart().lowercase()
 
         if (search.isEmpty()) {
             inputIcon = IconEnum.Search.name
@@ -129,7 +129,7 @@ fun MembersScreen(
 
             if (result != null) {
                 val filteredList = result.filter { u ->
-                    u.user.name?.lowercase()?.contains(value.lowercase()) ?: false
+                    u.user.name?.lowercase()?.contains(search) ?: false
                 }
                 if (filteredList.isEmpty()) {
                     inputIcon = IconEnum.Add.name
