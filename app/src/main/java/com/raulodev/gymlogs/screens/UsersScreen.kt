@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun MembersScreen(
+fun UsersScreen(
     db: AppDatabase? = null, navegationController: NavHostController? = null
 ) {
 
@@ -61,16 +61,16 @@ fun MembersScreen(
 
     var inputIcon by rememberSaveable { mutableStateOf(IconEnum.Search.name) }
     var isAsc by rememberSaveable { mutableStateOf(true) }
-    val members = remember { mutableStateListOf<UserAndCurrentPayment>() }
+    val users = remember { mutableStateListOf<UserAndCurrentPayment>() }
     var search by rememberSaveable { mutableStateOf("") }
-    val memberSelected = remember { mutableStateOf<UserAndCurrentPayment?>(null) }
+    val userSelected = remember { mutableStateOf<UserAndCurrentPayment?>(null) }
 
-    suspend fun showAllMembers() {
+    suspend fun showAllUsers() {
         try {
             val result = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
-            members.clear()
+            users.clear()
             if (!result.isNullOrEmpty()) {
-                members.addAll(result)
+                users.addAll(result)
             }
 
         } catch (e: Exception) {
@@ -81,14 +81,14 @@ fun MembersScreen(
     LaunchedEffect(Unit) {
         try {
             withContext(Dispatchers.IO) {
-                showAllMembers()
+                showAllUsers()
             }
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")
         }
     }
 
-    fun sortMembers(memberList: List<UserAndCurrentPayment>, asc: Boolean) {
+    fun sortUsers(memberList: List<UserAndCurrentPayment>, asc: Boolean) {
         isAsc = asc
         val membersSorted: List<UserAndCurrentPayment>
         if (asc) {
@@ -96,21 +96,21 @@ fun MembersScreen(
         } else {
             membersSorted = memberList.sortedByDescending { it.user.name }
         }
-        members.clear()
-        members.addAll(membersSorted)
+        users.clear()
+        users.addAll(membersSorted)
     }
 
     suspend fun restartSearch() {
         search = ""
         inputIcon = IconEnum.Search.name
-        showAllMembers()
+        showAllUsers()
     }
 
-    suspend fun addNewMember() {
+    suspend fun addNewUser() {
         try {
             val newUser = User(name = search, gender = Gender.Unknown.name)
             db?.userDao()?.insert(newUser)
-            showAllMembers()
+            showAllUsers()
 
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")
@@ -118,12 +118,12 @@ fun MembersScreen(
         restartSearch()
     }
 
-    suspend fun searchMember(value: String) {
+    suspend fun searchUser(value: String) {
         search = value
 
         if (search.trim().isEmpty()) {
             inputIcon = IconEnum.Search.name
-            showAllMembers()
+            showAllUsers()
             return
         }
 
@@ -139,7 +139,7 @@ fun MembersScreen(
                 } else {
                     inputIcon = IconEnum.Clear.name
                 }
-                sortMembers(filteredList, isAsc)
+                sortUsers(filteredList, isAsc)
 
             }
         } catch (e: Exception) {
@@ -147,10 +147,10 @@ fun MembersScreen(
         }
     }
 
-    suspend fun updateMember(member: User) {
+    suspend fun updateUser(member: User) {
         db?.userDao()?.updateUser(member)
-        memberSelected.value = null
-        searchMember(search)
+        userSelected.value = null
+        searchUser(search)
     }
 
     suspend fun deletePayment(payment: Payment?) {
@@ -158,7 +158,7 @@ fun MembersScreen(
             if (payment != null) {
                 db?.paymentDao()?.delete(payment)
             }
-            searchMember(search)
+            searchUser(search)
         } catch (e: Exception) {
             Log.i("DevLogs", "Error : ${e.message}")
         }
@@ -173,7 +173,7 @@ fun MembersScreen(
             db?.paymentDao()
                 ?.insert(Payment(year = year, month = month, paymentOwnerId = member.userId))
 
-            searchMember(search)
+            searchUser(search)
         } catch (e: Exception) {
             Log.i("DevLogs", "Error : ${e.message}")
         }
@@ -184,7 +184,7 @@ fun MembersScreen(
         Row {
             Box(modifier = Modifier.weight(1F)) {
                 Input(value = search,
-                    onValueChange = { coroutineScope.launch { searchMember(it) } },
+                    onValueChange = { coroutineScope.launch { searchUser(it) } },
                     placeholder = "Buscar o agregar",
                     trailingIcon = {
                         when (inputIcon) {
@@ -193,7 +193,7 @@ fun MembersScreen(
                             )
 
                             IconEnum.Add.name -> TextButton(onClick = {
-                                coroutineScope.launch { addNewMember() }
+                                coroutineScope.launch { addNewUser() }
                             }, modifier = Modifier.offset(x = (-10).dp)) {
                                 Text("Agregar")
                             }
@@ -213,7 +213,7 @@ fun MembersScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            SortDropdown(onSelect = { isAsc -> sortMembers(members, isAsc) })
+            SortDropdown(onSelect = { isAsc -> sortUsers(users, isAsc) })
             IconButton(onClick = {
                 navegationController?.navigate(Routes.ChartsScreen.name)
             }) {
@@ -222,7 +222,7 @@ fun MembersScreen(
         }
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(members) { data ->
+            items(users) { data ->
                 UserRow(data, data.payment != null, onCheckedChange = { isChecked ->
                     coroutineScope.launch {
                         when (isChecked) {
@@ -231,11 +231,11 @@ fun MembersScreen(
                         }
                     }
                 }, onLongClick = {
-                    memberSelected.value = it
+                    userSelected.value = it
                 })
             }
 
-            if (members.toList().isEmpty()) item {
+            if (users.toList().isEmpty()) item {
                 Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
                     Text(if (search.isNotEmpty()) "Sin resultados" else "No hay usuarios")
                 }
@@ -244,10 +244,10 @@ fun MembersScreen(
 
     }
 
-    EditUserModal(data = memberSelected.value,
-        isVisible = memberSelected.value != null,
-        onClose = { memberSelected.value = null },
-        onSave = { coroutineScope.launch { updateMember(it) } })
+    EditUserModal(data = userSelected.value,
+        isVisible = userSelected.value != null,
+        onClose = { userSelected.value = null },
+        onSave = { coroutineScope.launch { updateUser(it) } })
 }
 
 
@@ -259,7 +259,7 @@ fun MembersScreen(
 fun MemberPreview() {
     GymLogsTheme {
         Surface {
-            MembersScreen()
+            UsersScreen()
         }
     }
 }

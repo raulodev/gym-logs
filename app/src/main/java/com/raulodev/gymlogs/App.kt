@@ -19,7 +19,7 @@ import com.raulodev.gymlogs.database.AppDatabase
 import com.raulodev.gymlogs.enums.Routes
 import com.raulodev.gymlogs.screens.ChartScreen
 import com.raulodev.gymlogs.screens.HomeScreen
-import com.raulodev.gymlogs.screens.MembersScreen
+import com.raulodev.gymlogs.screens.UsersScreen
 import com.raulodev.gymlogs.screens.SplashScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -55,7 +55,7 @@ fun App(
             val navegationController = rememberNavController()
             NavHost(
                 navController = navegationController,
-                startDestination = if (keepSplashScreen) Routes.SplashScreen.name else if (gymCount == 0) Routes.HomeScreen.name else Routes.MembersScreen.name
+                startDestination = if (keepSplashScreen) Routes.SplashScreen.name else if (gymCount == 0) Routes.HomeScreen.name else Routes.UsersScreen.name
             ) {
                 composable(Routes.SplashScreen.name) {
                     SplashScreen()
@@ -65,8 +65,8 @@ fun App(
                         db, navegationController
                     )
                 }
-                composable(Routes.MembersScreen.name) {
-                    MembersScreen(
+                composable(Routes.UsersScreen.name) {
+                    UsersScreen(
                         db, navegationController
                     )
                 }

@@ -48,7 +48,7 @@ fun HomeScreen(
         try {
 
             db?.gymDao()?.insert(record)
-            navegationController?.navigate(Routes.MembersScreen.name)
+            navegationController?.navigate(Routes.UsersScreen.name)
 
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")

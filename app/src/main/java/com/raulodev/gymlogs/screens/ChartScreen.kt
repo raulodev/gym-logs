@@ -148,7 +148,7 @@ fun ChartScreen(
     Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
 
         IconButton(onClick = {
-            navegationController?.navigate(Routes.MembersScreen.name)
+            navegationController?.navigate(Routes.UsersScreen.name)
         }) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
