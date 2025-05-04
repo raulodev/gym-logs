@@ -22,38 +22,54 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.raulodev.gymlogs.enums.Gender
 import com.raulodev.gymlogs.ui.theme.GymLogsTheme
 
 
 @Composable
-fun SortDropdown(onSelect: (isAsc: Boolean) -> Unit) {
+fun FilterDropdown(onSelect: (gender: String) -> Unit) {
 
     var expanded by remember { mutableStateOf(false) }
-    var isAsc by rememberSaveable { mutableStateOf(true) }
+    var gender by rememberSaveable { mutableStateOf("") }
 
     Box {
         TextButton(onClick = {
             expanded = true
         }) {
-            Text("Ordenar")
+            Text("Filtrar")
         }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
+            DropdownMenuItem(
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(15.dp)
+                    ) {
+                        Text("Todos")
+                        if (gender == "") Icon(Icons.Filled.Check, contentDescription = "Check")
+                    }
+                },
+                onClick = {
+                    gender = ""
+                    onSelect(gender)
+                },
+            )
             DropdownMenuItem(text = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    Text("Ordenar A-Z")
-                    if (isAsc) Icon(Icons.Filled.Check, contentDescription = "Check")
+                    Text("Hombres")
+                    if (gender == Gender.Male.name) Icon(Icons.Filled.Check, contentDescription = "Check")
                 }
 
             }, onClick = {
-                isAsc = true
-                onSelect(true)
+                gender = Gender.Male.name
+                onSelect(gender)
             })
             DropdownMenuItem(
                 text = {
@@ -61,13 +77,28 @@ fun SortDropdown(onSelect: (isAsc: Boolean) -> Unit) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
-                        Text("Ordenar Z-A")
-                        if (!isAsc) Icon(Icons.Filled.Check, contentDescription = "Check")
+                        Text("Mujeres")
+                        if (gender == Gender.Female.name) Icon(Icons.Filled.Check, contentDescription = "Check")
                     }
                 },
                 onClick = {
-                    isAsc = false
-                    onSelect(false)
+                    gender = Gender.Female.name
+                    onSelect(gender)
+                },
+            )
+            DropdownMenuItem(
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(15.dp)
+                    ) {
+                        Text("Sin definir")
+                        if (gender == Gender.Unknown.name) Icon(Icons.Filled.Check, contentDescription = "Check")
+                    }
+                },
+                onClick = {
+                    gender = Gender.Unknown.name
+                    onSelect(gender)
                 },
             )
         }
@@ -77,17 +108,17 @@ fun SortDropdown(onSelect: (isAsc: Boolean) -> Unit) {
 
 @Preview(
     uiMode = UI_MODE_NIGHT_YES,
-    name = "CustomDropdownDark",
+    name = "FilterDropdownDark",
     showBackground = true,
     heightDp = 200,
     widthDp = 200
 )
 @Preview(showBackground = true, heightDp = 200, widthDp = 200)
 @Composable
-fun CustomDropdownPreview() {
+fun FilterDropdownPreview() {
     GymLogsTheme {
         Surface {
-            SortDropdown(onSelect = {})
+            FilterDropdown(onSelect = {})
         }
     }
 }

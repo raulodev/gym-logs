@@ -43,6 +43,7 @@ import com.raulodev.gymlogs.enums.Gender
 import com.raulodev.gymlogs.enums.IconEnum
 import com.raulodev.gymlogs.enums.Routes
 import com.raulodev.gymlogs.ui.components.EditUserModal
+import com.raulodev.gymlogs.ui.components.FilterDropdown
 import com.raulodev.gymlogs.ui.components.Input
 import com.raulodev.gymlogs.ui.components.SortDropdown
 import com.raulodev.gymlogs.ui.components.UserRow
@@ -215,7 +216,10 @@ fun UsersScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            SortDropdown(onSelect = { isAsc -> sortUsers(users, isAsc) })
+            Row {
+                SortDropdown(onSelect = { isAsc -> sortUsers(users, isAsc) })
+                FilterDropdown(onSelect = {  })
+            }
             IconButton(onClick = {
                 navegationController?.navigate(Routes.ChartsScreen.name)
             }) {
