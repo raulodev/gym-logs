@@ -59,6 +59,7 @@ fun UsersScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    var loading by remember { mutableStateOf(true) }
     var inputIcon by rememberSaveable { mutableStateOf(IconEnum.Search.name) }
     var isAsc by rememberSaveable { mutableStateOf(true) }
     val users = remember { mutableStateListOf<UserAndCurrentPayment>() }
@@ -82,6 +83,7 @@ fun UsersScreen(
         try {
             withContext(Dispatchers.IO) {
                 showAllUsers()
+                loading = false
             }
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")
@@ -235,7 +237,7 @@ fun UsersScreen(
                 })
             }
 
-            if (users.toList().isEmpty()) item {
+            if (users.toList().isEmpty() && !loading ) item {
                 Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
                     Text(if (search.isNotEmpty()) "Sin resultados" else "No hay usuarios")
                 }
