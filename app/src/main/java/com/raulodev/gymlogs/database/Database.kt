@@ -59,6 +59,13 @@ data class UserAndCurrentPayment(
     @Embedded val payment: Payment?,
 )
 
+data class GenderCount(
+    val male: Int,
+    val female: Int,
+    val unknown: Int,
+    val total: Int
+)
+
 @Dao
 interface UserDao {
     @Query(
@@ -85,6 +92,19 @@ interface UserDao {
     """
     )
     suspend fun findByName(isAsc: Boolean = true, name: String): List<UserAndCurrentPayment>
+
+
+    @Query(
+        """
+    SELECT
+        SUM(CASE WHEN gender = 'Male' THEN 1 ELSE 0 END) AS male,
+        SUM(CASE WHEN gender = 'Female' THEN 1 ELSE 0 END) AS female,
+        SUM(CASE WHEN gender = 'Unknown' THEN 1 ELSE 0 END) AS unknown,
+        COUNT(*) AS total
+    FROM user
+    """
+    )
+    suspend fun countUsersByOwner(): GenderCount
 
 
     @Update
@@ -116,6 +136,11 @@ interface UserDao {
 }
 
 
+data class PaymentData(
+    val month: Int,
+    val payments: Int
+)
+
 @Dao
 interface PaymentsDao {
 
@@ -124,6 +149,10 @@ interface PaymentsDao {
 
     @Delete
     suspend fun delete(vararg payment: Payment)
+
+
+    @Query("""SELECT month , COUNT(*) as payments FROM payment WHERE year = :year GROUP BY month ORDER BY month;""")
+    suspend fun getByMonth(year: Int) : List<PaymentData>
 
 }
 

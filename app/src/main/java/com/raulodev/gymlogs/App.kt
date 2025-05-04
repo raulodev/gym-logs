@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.raulodev.gymlogs.database.AppDatabase
 import com.raulodev.gymlogs.enums.Routes
+import com.raulodev.gymlogs.screens.ChartScreen
 import com.raulodev.gymlogs.screens.HomeScreen
 import com.raulodev.gymlogs.screens.MembersScreen
 import com.raulodev.gymlogs.screens.SplashScreen
@@ -68,6 +69,10 @@ fun App(
                     MembersScreen(
                         db, navegationController
                     )
+                }
+                composable(Routes.ChartsScreen.name) {
+                    ChartScreen(db, navegationController)
+
                 }
             }
         }

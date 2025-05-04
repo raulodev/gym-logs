@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -40,11 +41,13 @@ import com.raulodev.gymlogs.database.User
 import com.raulodev.gymlogs.database.UserAndCurrentPayment
 import com.raulodev.gymlogs.enums.Gender
 import com.raulodev.gymlogs.enums.IconEnum
+import com.raulodev.gymlogs.enums.Routes
 import com.raulodev.gymlogs.ui.components.EditUserModal
 import com.raulodev.gymlogs.ui.components.Input
 import com.raulodev.gymlogs.ui.components.SortDropdown
 import com.raulodev.gymlogs.ui.components.UserRow
 import com.raulodev.gymlogs.ui.theme.GymLogsTheme
+import com.raulodev.gymlogs.ui.theme.successLight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -116,9 +119,9 @@ fun MembersScreen(
     }
 
     suspend fun searchMember(value: String) {
-        search = value.trimStart().lowercase()
+        search = value
 
-        if (search.isEmpty()) {
+        if (search.trim().isEmpty()) {
             inputIcon = IconEnum.Search.name
             showAllMembers()
             return
@@ -129,7 +132,7 @@ fun MembersScreen(
 
             if (result != null) {
                 val filteredList = result.filter { u ->
-                    u.user.name?.lowercase()?.contains(search) ?: false
+                    u.user.name?.lowercase()?.contains(search.trim().lowercase()) ?: false
                 }
                 if (filteredList.isEmpty()) {
                     inputIcon = IconEnum.Add.name
@@ -211,6 +214,11 @@ fun MembersScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             SortDropdown(onSelect = { isAsc -> sortMembers(members, isAsc) })
+            IconButton(onClick = {
+                navegationController?.navigate(Routes.ChartsScreen.name)
+            }) {
+                Icon(Icons.Filled.BarChart, contentDescription = "Charts", tint = successLight)
+            }
         }
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
