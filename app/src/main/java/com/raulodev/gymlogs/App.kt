@@ -39,7 +39,7 @@ fun App(
             val count = withContext(Dispatchers.IO) {
                 db.gymDao().count()
             }
-            gymCount = count ?: 0
+            gymCount = count
 
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")
