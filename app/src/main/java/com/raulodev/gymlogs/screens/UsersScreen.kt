@@ -63,6 +63,7 @@ fun UsersScreen(
     var loading by remember { mutableStateOf(true) }
     var inputIcon by rememberSaveable { mutableStateOf(IconEnum.Search.name) }
     var isAsc by rememberSaveable { mutableStateOf(true) }
+    var gender by rememberSaveable { mutableStateOf("") }
     val users = remember { mutableStateListOf<UserAndCurrentPayment>() }
     var search by rememberSaveable { mutableStateOf("") }
     val userSelected = remember { mutableStateOf<UserAndCurrentPayment?>(null) }
@@ -93,14 +94,30 @@ fun UsersScreen(
 
     fun sortUsers(memberList: List<UserAndCurrentPayment>, asc: Boolean) {
         isAsc = asc
-        val membersSorted: List<UserAndCurrentPayment>
+        val usersSorted: List<UserAndCurrentPayment>
         if (asc) {
-            membersSorted = memberList.sortedBy { it.user.name }
+            usersSorted = memberList.sortedBy { it.user.name }
         } else {
-            membersSorted = memberList.sortedByDescending { it.user.name }
+            usersSorted = memberList.sortedByDescending { it.user.name }
         }
         users.clear()
-        users.addAll(membersSorted)
+        users.addAll(usersSorted)
+    }
+
+    fun filterUsers(newGender: String) {
+        gender = newGender
+        if (gender.isEmpty()) {
+            coroutineScope.launch { showAllUsers() }
+        } else {
+            coroutineScope.launch {
+                val result = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
+                if (!result.isNullOrEmpty()) {
+                    val usersFiltred = result.filter { u -> u.user.gender.equals(gender) }
+                    users.clear()
+                    users.addAll(usersFiltred)
+                }
+            }
+        }
     }
 
     suspend fun restartSearch() {
@@ -218,7 +235,7 @@ fun UsersScreen(
         ) {
             Row {
                 SortDropdown(onSelect = { isAsc -> sortUsers(users, isAsc) })
-                FilterDropdown(onSelect = {  })
+                FilterDropdown(onSelect = { gender -> filterUsers(gender) })
             }
             IconButton(onClick = {
                 navegationController?.navigate(Routes.ChartsScreen.name)
@@ -241,7 +258,7 @@ fun UsersScreen(
                 })
             }
 
-            if (users.toList().isEmpty() && !loading ) item {
+            if (users.toList().isEmpty() && !loading) item {
                 Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
                     Text(if (search.isNotEmpty()) "Sin resultados" else "No hay usuarios")
                 }
