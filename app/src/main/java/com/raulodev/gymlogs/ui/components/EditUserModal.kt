@@ -9,13 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.raulodev.gymlogs.database.User
-import com.raulodev.gymlogs.database.UserAndCurrentPayment
+import com.raulodev.gymlogs.database.UserAndCurrentPaymentDataClass
 import com.raulodev.gymlogs.enums.Gender
 
 
 @Composable
 fun EditUserModal(
-    data: UserAndCurrentPayment? = null,
+    data: UserAndCurrentPaymentDataClass? = null,
     isVisible: Boolean,
     onClose: () -> Unit,
     onSave: (user: User) -> Unit

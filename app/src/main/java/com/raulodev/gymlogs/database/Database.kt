@@ -10,7 +10,6 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import androidx.room.Relation
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Update
@@ -37,6 +36,23 @@ data class Payment(
 )
 
 
+data class UserAndCurrentPaymentDataClass(
+    @Embedded val user: User,
+    @Embedded val payment: Payment?,
+)
+
+data class GenderCountDataClass(
+    val male: Int,
+    val female: Int,
+    val unknown: Int,
+    val total: Int
+)
+
+data class PaymentDataClass(
+    val month: Int,
+    val payments: Int
+)
+
 @Dao
 interface GymDao {
     @Query("SELECT * FROM gym")
@@ -49,50 +65,11 @@ interface GymDao {
     suspend fun insert(vararg gym: Gym)
 }
 
-data class UserPayments(
-    @Embedded val user: User,
-    @Relation(parentColumn = "userId", entityColumn = "paymentOwnerId") val payments: List<Payment>,
-)
-
-data class UserAndCurrentPayment(
-    @Embedded val user: User,
-    @Embedded val payment: Payment?,
-)
-
-data class GenderCount(
-    val male: Int,
-    val female: Int,
-    val unknown: Int,
-    val total: Int
-)
-
 @Dao
 interface UserDao {
-    @Query(
-        "SELECT * FROM user ORDER BY " + "CASE WHEN :isAsc = 1 THEN LOWER(name) END ASC," + "CASE WHEN :isAsc = 0 THEN LOWER(name) END DESC"
-    )
-    suspend fun getAll(isAsc: Boolean = true): List<User>
 
     @Query("SELECT * FROM user WHERE userId IN (:userIds)")
     fun loadAllByIds(userIds: IntArray): List<User>
-
-
-    @Query(
-        """
-    SELECT *
-    FROM user 
-    LEFT OUTER JOIN payment 
-        ON user.userId = payment.paymentOwnerId 
-        AND payment.month = CAST(strftime('%m' , 'now') AS INTEGER)
-        AND payment.year = CAST(strftime('%Y' , 'now') AS INTEGER)
-    WHERE name LIKE '%' || :name || '%'    
-    ORDER BY
-        CASE WHEN :isAsc = 1 THEN LOWER(user.name) END ASC,
-        CASE WHEN :isAsc = 0 THEN LOWER(user.name) END DESC
-    """
-    )
-    suspend fun findByName(isAsc: Boolean = true, name: String): List<UserAndCurrentPayment>
-
 
     @Query(
         """
@@ -104,8 +81,7 @@ interface UserDao {
     FROM user
     """
     )
-    suspend fun countUsersByOwner(): GenderCount
-
+    suspend fun countUsersByOwner(): GenderCountDataClass
 
     @Update
     suspend fun updateUser(user: User)
@@ -128,18 +104,12 @@ interface UserDao {
         CASE WHEN :isAsc = 0 THEN LOWER(user.name) END DESC
     """
     )
-    suspend fun getAllUsersAndCurrentPayment(isAsc: Boolean = true): List<UserAndCurrentPayment>
+    suspend fun getAllUsersAndCurrentPayment(isAsc: Boolean = true): List<UserAndCurrentPaymentDataClass>
 
 
     @Delete
     fun delete(user: User)
 }
-
-
-data class PaymentData(
-    val month: Int,
-    val payments: Int
-)
 
 @Dao
 interface PaymentsDao {
@@ -152,7 +122,7 @@ interface PaymentsDao {
 
 
     @Query("""SELECT month , COUNT(*) as payments FROM payment WHERE year = :year GROUP BY month ORDER BY month;""")
-    suspend fun getByMonth(year: Int) : List<PaymentData>
+    suspend fun getByMonth(year: Int): List<PaymentDataClass>
 
 }
 

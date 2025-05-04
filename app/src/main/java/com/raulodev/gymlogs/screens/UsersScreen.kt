@@ -38,7 +38,7 @@ import androidx.navigation.NavHostController
 import com.raulodev.gymlogs.database.AppDatabase
 import com.raulodev.gymlogs.database.Payment
 import com.raulodev.gymlogs.database.User
-import com.raulodev.gymlogs.database.UserAndCurrentPayment
+import com.raulodev.gymlogs.database.UserAndCurrentPaymentDataClass
 import com.raulodev.gymlogs.enums.Gender
 import com.raulodev.gymlogs.enums.IconEnum
 import com.raulodev.gymlogs.enums.Routes
@@ -64,9 +64,9 @@ fun UsersScreen(
     var inputIcon by rememberSaveable { mutableStateOf(IconEnum.Search.name) }
     var isAsc by rememberSaveable { mutableStateOf(true) }
     var gender by rememberSaveable { mutableStateOf("") }
-    val users = remember { mutableStateListOf<UserAndCurrentPayment>() }
+    val users = remember { mutableStateListOf<UserAndCurrentPaymentDataClass>() }
     var search by rememberSaveable { mutableStateOf("") }
-    val userSelected = remember { mutableStateOf<UserAndCurrentPayment?>(null) }
+    val userSelected = remember { mutableStateOf<UserAndCurrentPaymentDataClass?>(null) }
 
     suspend fun showAllUsers() {
         try {
@@ -92,9 +92,9 @@ fun UsersScreen(
         }
     }
 
-    fun sortUsers(memberList: List<UserAndCurrentPayment>, asc: Boolean) {
+    fun sortUsers(memberList: List<UserAndCurrentPaymentDataClass>, asc: Boolean) {
         isAsc = asc
-        val usersSorted: List<UserAndCurrentPayment>
+        val usersSorted: List<UserAndCurrentPaymentDataClass>
         if (asc) {
             usersSorted = memberList.sortedBy { it.user.name }
         } else {

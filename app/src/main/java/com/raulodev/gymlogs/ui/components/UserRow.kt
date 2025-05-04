@@ -20,16 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.raulodev.gymlogs.database.Payment
 import com.raulodev.gymlogs.database.User
-import com.raulodev.gymlogs.database.UserAndCurrentPayment
+import com.raulodev.gymlogs.database.UserAndCurrentPaymentDataClass
 import com.raulodev.gymlogs.ui.theme.GymLogsTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserRow(
-    data: UserAndCurrentPayment,
+    data: UserAndCurrentPaymentDataClass,
     paid: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    onLongClick: (data: UserAndCurrentPayment) -> Unit
+    onLongClick: (data: UserAndCurrentPaymentDataClass) -> Unit
 ) {
 
     Row(
@@ -71,7 +71,7 @@ fun UserRowPreview() {
     GymLogsTheme {
         Surface {
             Column {
-                UserRow(data = UserAndCurrentPayment(
+                UserRow(data = UserAndCurrentPaymentDataClass(
                     user = User(name = "Raul enrique Cobiellas", gender = "Masculino"),
                     payment = Payment(year = 2025, month = 1, paymentOwnerId = 1)
                 ), paid = false, onCheckedChange = {}, onLongClick = {})
