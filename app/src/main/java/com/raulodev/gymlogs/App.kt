@@ -37,7 +37,7 @@ fun App(
     LaunchedEffect(Unit) {
         try {
             val count = withContext(Dispatchers.IO) {
-                db?.gymDao()?.count()
+                db.gymDao().count()
             }
             gymCount = count ?: 0
 
