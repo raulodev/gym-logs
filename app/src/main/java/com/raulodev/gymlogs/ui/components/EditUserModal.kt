@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.raulodev.gymlogs.database.User
 import com.raulodev.gymlogs.database.UserAndCurrentPaymentDataClass
 import com.raulodev.gymlogs.enums.Gender
+import com.raulodev.gymlogs.ui.theme.danger
 
 
 @Composable
@@ -46,9 +47,12 @@ fun EditUserModal(
             TextRadioButton("Hombre",
                 selected = gender == Gender.Male.name,
                 onClick = { gender = Gender.Male.name })
-            TextRadioButton("Mujer",
+            TextRadioButton(
+                "Mujer",
                 selected = gender == Gender.Female.name,
-                onClick = { gender = Gender.Female.name })
+                onClick = { gender = Gender.Female.name },
+                color = danger
+            )
         }
 
         Row {
