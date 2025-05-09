@@ -76,8 +76,7 @@ fun UsersScreen(
             if (userData.isEmpty() && search.isBlank()) {
                 inputIcon = IconEnum.Search.name
                 return
-            }
-            else if (userData.isEmpty() && search.isNotBlank()) {
+            } else if (userData.isEmpty() && search.isNotBlank()) {
                 inputIcon = IconEnum.Add.name
                 return
             }
@@ -105,9 +104,9 @@ fun UsersScreen(
 
             if (search.trim().isBlank()) {
                 inputIcon = IconEnum.Search.name
-            } else if (search.trim().isNotBlank() && userData.isEmpty()){
+            } else if (search.trim().isNotBlank() && userData.isEmpty()) {
                 inputIcon = IconEnum.Add.name
-            } else if (search.trim().isNotBlank() && userData.isNotEmpty()){
+            } else if (search.trim().isNotBlank() && userData.isNotEmpty()) {
                 inputIcon = IconEnum.Clear.name
             }
 
@@ -140,7 +139,10 @@ fun UsersScreen(
 
     suspend fun addUser() {
         try {
-            val newUser = User(name = search, gender =  if (gender.isNotBlank()) gender else Gender.Unknown.name)
+            val newUser = User(
+                name = search,
+                gender = if (gender.isNotBlank()) gender else Gender.Unknown.name
+            )
             db?.userDao()?.insert(newUser)
             filterSortUsers()
         } catch (e: Exception) {
