@@ -71,9 +71,16 @@ fun UsersScreen(
 
     suspend fun filterSortUsers() {
         try {
-            var userData = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
+            var userData = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc) ?: emptyList()
 
-            if (userData.isNullOrEmpty()) return
+            if (userData.isEmpty() && search.isBlank()) {
+                inputIcon = IconEnum.Search.name
+                return
+            }
+            else if (userData.isEmpty() && search.isNotBlank()) {
+                inputIcon = IconEnum.Add.name
+                return
+            }
 
             if (gender.isNotBlank() && search.isNotBlank()) {
 
@@ -96,13 +103,12 @@ fun UsersScreen(
                 }
             }
 
-            // set input icon
             if (search.trim().isBlank()) {
                 inputIcon = IconEnum.Search.name
             } else if (search.trim().isNotBlank() && userData.isEmpty()){
                 inputIcon = IconEnum.Add.name
             } else if (search.trim().isNotBlank() && userData.isNotEmpty()){
-                inputIcon = IconEnum.Search.name
+                inputIcon = IconEnum.Clear.name
             }
 
             users.clear()
