@@ -32,11 +32,25 @@ fun FilterDropdown(onSelect: (gender: String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var gender by rememberSaveable { mutableStateOf("") }
 
+    fun setButtonTitle(): String {
+
+        if (gender.isBlank()){
+            return "Filtrar"
+        } else if (gender.equals(Gender.Male.name)){
+            return "Hombres"
+        }else if (gender.equals(Gender.Female.name)){
+            return "Mujeres"
+        }
+        else {
+            return "Sin definir"
+        }
+    }
+
     Box {
         TextButton(onClick = {
             expanded = true
         }) {
-            Text("Filtrar")
+            Text(setButtonTitle())
         }
         DropdownMenu(
             expanded = expanded,
