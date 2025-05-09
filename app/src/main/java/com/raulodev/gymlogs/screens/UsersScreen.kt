@@ -68,23 +68,57 @@ fun UsersScreen(
     var search by rememberSaveable { mutableStateOf("") }
     val userSelected = remember { mutableStateOf<UserAndCurrentPaymentDataClass?>(null) }
 
-    suspend fun showAllUsers() {
+
+    suspend fun filterSortUsers() {
         try {
-            val result = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
-            users.clear()
-            if (!result.isNullOrEmpty()) {
-                users.addAll(result)
+            var userData = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
+
+            if (userData.isNullOrEmpty()) return
+
+            if (gender.isNotBlank() && search.isNotBlank()) {
+
+                userData = userData.filter { u ->
+                    u.user.gender.equals(gender) && u.user.name?.lowercase()
+                        ?.contains(search.trim().lowercase()) ?: false
+                }
+
+            } else if (gender.isNotBlank() && search.isBlank()) {
+
+                userData = userData.filter { u ->
+                    u.user.gender.equals(gender)
+                }
+
+            } else if (gender.isBlank() && search.isNotBlank()) {
+
+                userData = userData.filter { u ->
+                    u.user.name?.lowercase()
+                        ?.contains(search.trim().lowercase()) ?: false
+                }
             }
+
+            // set input icon
+            if (search.trim().isBlank()) {
+                inputIcon = IconEnum.Search.name
+            } else if (search.trim().isNotBlank() && userData.isEmpty()){
+                inputIcon = IconEnum.Add.name
+            } else if (search.trim().isNotBlank() && userData.isNotEmpty()){
+                inputIcon = IconEnum.Search.name
+            }
+
+            users.clear()
+            users.addAll(userData)
 
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")
         }
+
     }
+
 
     LaunchedEffect(Unit) {
         try {
             withContext(Dispatchers.IO) {
-                showAllUsers()
+                filterSortUsers()
                 loading = false
             }
         } catch (e: Exception) {
@@ -92,85 +126,27 @@ fun UsersScreen(
         }
     }
 
-    fun sortUsers(memberList: List<UserAndCurrentPaymentDataClass>, asc: Boolean) {
-        isAsc = asc
-        val usersSorted: List<UserAndCurrentPaymentDataClass>
-        if (asc) {
-            usersSorted = memberList.sortedBy { it.user.name }
-        } else {
-            usersSorted = memberList.sortedByDescending { it.user.name }
-        }
-        users.clear()
-        users.addAll(usersSorted)
-    }
-
-    fun filterUsers(newGender: String) {
-        gender = newGender
-        if (gender.isEmpty()) {
-            coroutineScope.launch { showAllUsers() }
-        } else {
-            coroutineScope.launch {
-                val result = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
-                if (!result.isNullOrEmpty()) {
-                    val usersFiltred = result.filter { u -> u.user.gender.equals(gender) }
-                    users.clear()
-                    users.addAll(usersFiltred)
-                }
-            }
-        }
-    }
-
     suspend fun restartSearch() {
         search = ""
         inputIcon = IconEnum.Search.name
-        showAllUsers()
+        filterSortUsers()
     }
 
-    suspend fun addNewUser() {
+    suspend fun addUser() {
         try {
             val newUser = User(name = search, gender = Gender.Unknown.name)
             db?.userDao()?.insert(newUser)
-            showAllUsers()
-
+            filterSortUsers()
         } catch (e: Exception) {
             Log.e("DevLogs", "Error: ${e.message}")
         }
         restartSearch()
     }
 
-    suspend fun searchUser(value: String) {
-        search = value
-
-        if (search.trim().isEmpty()) {
-            inputIcon = IconEnum.Search.name
-            showAllUsers()
-            return
-        }
-
-        try {
-            val result = db?.userDao()?.getAllUsersAndCurrentPayment(isAsc)
-
-            if (result != null) {
-                val filteredList = result.filter { u ->
-                    u.user.name?.lowercase()?.contains(search.trim().lowercase()) ?: false
-                }
-                if (filteredList.isEmpty()) {
-                    inputIcon = IconEnum.Add.name
-                } else {
-                    inputIcon = IconEnum.Clear.name
-                }
-                sortUsers(filteredList, isAsc)
-
-            }
-        } catch (e: Exception) {
-            Log.e("DevLogs", "Error: ${e.message}")
-        }
-    }
-
     suspend fun updateUser(member: User) {
         db?.userDao()?.updateUser(member)
         userSelected.value = null
-        searchUser(search)
+        filterSortUsers()
     }
 
     suspend fun deletePayment(payment: Payment?) {
@@ -178,13 +154,13 @@ fun UsersScreen(
             if (payment != null) {
                 db?.paymentDao()?.delete(payment)
             }
-            searchUser(search)
+            filterSortUsers()
         } catch (e: Exception) {
             Log.i("DevLogs", "Error : ${e.message}")
         }
     }
 
-    suspend fun registerPayment(member: User) {
+    suspend fun addPayment(member: User) {
         try {
             val rightNow = Calendar.getInstance()
             val month = rightNow.get(Calendar.MONTH) + 1
@@ -193,18 +169,22 @@ fun UsersScreen(
             db?.paymentDao()
                 ?.insert(Payment(year = year, month = month, paymentOwnerId = member.userId))
 
-            searchUser(search)
+            filterSortUsers()
         } catch (e: Exception) {
             Log.i("DevLogs", "Error : ${e.message}")
         }
     }
 
     Column(modifier = Modifier.padding(20.dp)) {
-
         Row {
             Box(modifier = Modifier.weight(1F)) {
                 Input(value = search,
-                    onValueChange = { coroutineScope.launch { searchUser(it) } },
+                    onValueChange = {
+                        coroutineScope.launch {
+                            search = it
+                            filterSortUsers()
+                        }
+                    },
                     placeholder = "Buscar o agregar",
                     trailingIcon = {
                         when (inputIcon) {
@@ -213,7 +193,7 @@ fun UsersScreen(
                             )
 
                             IconEnum.Add.name -> TextButton(onClick = {
-                                coroutineScope.launch { addNewUser() }
+                                coroutineScope.launch { addUser() }
                             }, modifier = Modifier.offset(x = (-10).dp)) {
                                 Text("Agregar")
                             }
@@ -234,8 +214,14 @@ fun UsersScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row {
-                SortDropdown(onSelect = { isAsc -> sortUsers(users, isAsc) })
-                FilterDropdown(onSelect = { gender -> filterUsers(gender) })
+                SortDropdown(onSelect = {
+                    isAsc = it
+                    coroutineScope.launch { filterSortUsers() }
+                })
+                FilterDropdown(onSelect = {
+                    gender = it
+                    coroutineScope.launch { filterSortUsers() }
+                })
             }
             IconButton(onClick = {
                 navegationController?.navigate(Routes.ChartsScreen.name)
@@ -250,7 +236,7 @@ fun UsersScreen(
                     coroutineScope.launch {
                         when (isChecked) {
                             false -> deletePayment(data.payment)
-                            true -> registerPayment(data.user)
+                            true -> addPayment(data.user)
                         }
                     }
                 }, onLongClick = {
