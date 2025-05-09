@@ -140,7 +140,7 @@ fun UsersScreen(
 
     suspend fun addUser() {
         try {
-            val newUser = User(name = search, gender = Gender.Unknown.name)
+            val newUser = User(name = search, gender =  if (gender.isNotBlank()) gender else Gender.Unknown.name)
             db?.userDao()?.insert(newUser)
             filterSortUsers()
         } catch (e: Exception) {
