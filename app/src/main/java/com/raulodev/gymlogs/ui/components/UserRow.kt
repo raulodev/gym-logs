@@ -59,10 +59,12 @@ fun UserRow(
         modifier = Modifier.fillMaxWidth()
     ) {
 
-        Box(modifier = Modifier
-            .size(10.dp)
-            .clip(CircleShape)
-            .background(setColor()))
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(setColor())
+        )
 
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -71,6 +73,7 @@ fun UserRow(
                 .combinedClickable(onLongClick = {
                     onLongClick(data)
                 }) {}) {
+
             Text(
                 "${data.user.name}",
                 fontSize = 18.sp,
