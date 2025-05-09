@@ -34,14 +34,13 @@ fun FilterDropdown(onSelect: (gender: String) -> Unit) {
 
     fun setButtonTitle(): String {
 
-        if (gender.isBlank()){
+        if (gender.isBlank()) {
             return "Filtrar"
-        } else if (gender.equals(Gender.Male.name)){
+        } else if (gender.equals(Gender.Male.name)) {
             return "Hombres"
-        }else if (gender.equals(Gender.Female.name)){
+        } else if (gender.equals(Gender.Female.name)) {
             return "Mujeres"
-        }
-        else {
+        } else {
             return "Sin definir"
         }
     }
@@ -78,7 +77,10 @@ fun FilterDropdown(onSelect: (gender: String) -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     Text("Hombres")
-                    if (gender == Gender.Male.name) Icon(Icons.Filled.Check, contentDescription = "Check")
+                    if (gender == Gender.Male.name) Icon(
+                        Icons.Filled.Check,
+                        contentDescription = "Check"
+                    )
                 }
 
             }, onClick = {
@@ -92,7 +94,10 @@ fun FilterDropdown(onSelect: (gender: String) -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         Text("Mujeres")
-                        if (gender == Gender.Female.name) Icon(Icons.Filled.Check, contentDescription = "Check")
+                        if (gender == Gender.Female.name) Icon(
+                            Icons.Filled.Check,
+                            contentDescription = "Check"
+                        )
                     }
                 },
                 onClick = {
@@ -107,7 +112,10 @@ fun FilterDropdown(onSelect: (gender: String) -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         Text("Sin definir")
-                        if (gender == Gender.Unknown.name) Icon(Icons.Filled.Check, contentDescription = "Check")
+                        if (gender == Gender.Unknown.name) Icon(
+                            Icons.Filled.Check,
+                            contentDescription = "Check"
+                        )
                     }
                 },
                 onClick = {
